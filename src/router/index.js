@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -83,6 +83,34 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/apiTest',
+    component: Layout,
+    redirect: '/api-test/projects',
+    name: 'api-test',
+    meta: {
+      title: '接口测试',
+      icon: 'swagger'
+    },
+    children: [
+      {
+        path: '/api-test/projects',
+        component: () => import('@/views/api-test/projects-list'),
+        name: 'projects',
+        meta: { title: '项目管理' }
+      },
+      {
+        path: '/api-test/tasks',
+        component: () => import('@/views/api-test/task'),
+        name: 'api-docs',
+        meta: { title: '测试任务' }
+      },
+      {
+        path: '/api-test/tasks/:id',
+        component: () => import('@/views/api-test/task-board')
+      }
+    ]
+  }
   // {
   //   path: '/documentation',
   //   component: Layout,
