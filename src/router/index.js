@@ -95,7 +95,7 @@ export const constantRoutes = [
     children: [
       {
         path: '/api-test/projects',
-        component: () => import('@/views/api-test/projects-list'),
+        component: () => import('@/views/api-test/project-list'),
         name: 'projects',
         meta: { title: '项目管理' }
       },
