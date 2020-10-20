@@ -5,14 +5,17 @@
 
       <!--      项目名称-->
       <el-input v-model="listQuery.project" :placeholder="$t('table.project')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+
       <!--      项目类型-->
-      <el-select v-model="listQuery.type" :placeholder="$t('table.type')" clearable class="filter-item" style="width: 130px" value="">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key" />
+      <el-select v-model="listQuery.env" :placeholder="$t('table.env')" clearable class="filter-item" style="width: 130px" value="">
+        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.display_name" />
       </el-select>
+
       <!--      搜索-->
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
+
       <!--      添加-->
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         {{ $t('table.add') }}
@@ -30,22 +33,38 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column :label="$t('table.id')" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+
+      <el-table-column :label="$t('table.id')" prop="id" align="center" width="80">
+        <template slot-scope="scope">
+          <span>{{ scope.$index + 1 }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('table.project')" min-width="150px">
+      <el-table-column :label="$t('table.project')" min-width="50px" align="center">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleUpdate(row)">{{ row.project }}</span>
-          <el-tag>{{ row.type | typeFilter }}</el-tag>
+          &emsp;
+          <el-tag>{{ row.env | envFilter }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('table.date')" width="150px" align="center">
+      <el-table-column :label="$t('table.swagger_url')" min-width="110px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.swagger_url }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column :label="$t('table.version')" min-width="40px" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.version">{{ row.version }}</span>
+          <span v-else>---</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column :label="$t('table.update_at')" width="150px" align="center">
+        <template slot-scope="{row}">
+          <span v-if="row.timestamp">{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-else>---</span>
         </template>
       </el-table-column>
 
@@ -59,7 +78,7 @@
       <el-table-column :label="$t('table.status')" class-name="status-col" width="100">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
+            {{ row.status | statusFilter }}
           </el-tag>
         </template>
       </el-table-column>
@@ -82,32 +101,23 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('table.type')" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" style="margin-right: 180px;margin-left: 180px">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="110px" style="margin-left:10px;">
+
+        <el-form-item :label="$t('table.project')" prop="project" style="width: 300px">
+          <el-input v-model="temp.project" />
+        </el-form-item>
+
+        <el-form-item :label="$t('table.env')" prop="env">
+          <el-select v-model="temp.env" class="filter-item" placeholder="Please select">
             <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item :label="$t('table.project')" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <el-form-item :label="$t('table.status')">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
+
+        <el-form-item :label="$t('table.swagger_url')" prop="swagger_url" style="max-width: 700px;margin-right: 10px">
+          <el-input v-model="temp.swagger_url" />
         </el-form-item>
 
-        <!--        <el-form-item :label="$t('table.importance')">-->
-        <!--          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />-->
-        <!--        </el-form-item>-->
-
-        <el-form-item :label="$t('table.remark')">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
@@ -132,8 +142,8 @@
 </template>
 
 <script>
-import { fetchPv, createArticle, updateArticle } from '@/api/article'
-import { projectList } from '@/api/project'
+import { fetchPv, updateArticle } from '@/api/article'
+import { projectList, createProject } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -151,21 +161,26 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
   return acc
 }, {})
 
+const statusOptions = [
+  { key: '0', display_name: '未更新' },
+  { key: '1', display_name: '已更新' }
+]
+
+const statusKeyValue = statusOptions.reduce((acc, cur) => {
+  acc[cur.key] = cur.display_name
+  return acc
+}, {})
+
 export default {
   name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
-      }
-      return statusMap[status]
+      return statusKeyValue[status]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
+    envFilter(env) {
+      return calendarTypeKeyValue[env]
     }
   },
   data() {
@@ -177,24 +192,16 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        // importance: undefined,
         project: undefined,
-        type: undefined,
-        sort: '+id'
+        env: undefined
       },
-      // importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['published', 'deleted'],
+      statusOptions,
       showReviewer: false,
       temp: {
-        id: undefined,
-        // importance: 1,
-        remark: '',
-        timestamp: new Date(),
         project: '',
-        type: '',
-        status: 'published'
+        swagger_url: '',
+        env: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -205,11 +212,11 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        project: [{ required: true, message: 'project is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
+        project: [{ required: true, message: 'project is required', trigger: 'blur' }],
+        env: [{ required: true, message: 'env is required', trigger: 'change' }],
+        swagger_url: [{ required: true, message: 'swagger_url is required', trigger: 'blur' }]
+      }
+      // downloadLoading: false
     }
   },
   created() {
@@ -221,7 +228,6 @@ export default {
       projectList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
-
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -239,29 +245,12 @@ export default {
       })
       row.status = status
     },
-    sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        // importance: 1,
-        remark: '',
-        timestamp: new Date(),
         project: '',
-        status: 'published',
-        type: ''
+        env: '',
+        swagger_url: '',
+        status: 0
       }
     },
     handleCreate() {
@@ -275,9 +264,9 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           // this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
+          createProject(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -333,20 +322,6 @@ export default {
         this.dialogPvVisible = true
       })
     },
-    // handleDownload() {
-    //   this.downloadLoading = true
-    //   import('@/vendor/Export2Excel').then(excel => {
-    //     const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-    //     const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-    //     const data = this.formatJson(filterVal)
-    //     excel.export_json_to_excel({
-    //       header: tHeader,
-    //       data,
-    //       filename: 'table-list'
-    //     })
-    //     this.downloadLoading = false
-    //   })
-    // },
     formatJson(filterVal) {
       return this.list.map(v => filterVal.map(j => {
         if (j === 'timestamp') {
@@ -355,10 +330,6 @@ export default {
           return v[j]
         }
       }))
-    },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
     }
   }
 }

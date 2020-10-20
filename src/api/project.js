@@ -7,3 +7,11 @@ export function projectList(query) {
     params: query
   })
 }
+
+export function createProject(data) {
+  return request({
+    url: '/project/add',
+    method: 'post',
+    data
+  })
+}
