@@ -15,3 +15,19 @@ export function createProject(data) {
     data
   })
 }
+
+export function updateProject(data) {
+  return request({
+    url: '/project/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteProject(data) {
+  return request({
+    url: '/project/delete',
+    method: 'delete',
+    data
+  })
+}

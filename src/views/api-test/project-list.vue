@@ -82,16 +82,20 @@
       </el-table-column>
 
       <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
+        <template slot-scope="{row}">
+
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
+
+          <el-button v-if="row.status!='1'" size="mini" type="success" @click="handleModifyStatus(row,'1')">
             {{ $t('table.publish') }}
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+
+          <el-button size="mini" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
           </el-button>
+
         </template>
       </el-table-column>
 
@@ -107,7 +111,7 @@
         </el-form-item>
 
         <el-form-item :label="$t('table.env')" prop="env">
-          <el-select v-model="temp.env" class="filter-item" placeholder="Please select">
+          <el-select v-model="temp.env" class="filter-item" placeholder="Please select" value="">
             <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
@@ -127,21 +131,12 @@
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{ $t('table.confirm') }}</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchPv, updateArticle } from '@/api/article'
-import { projectList, createProject } from '@/api/project'
+import { fetchPv } from '@/api/article'
+import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -188,8 +183,9 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
+        id: '',
         page: 1,
-        limit: 20,
+        limit: 10,
         project: undefined,
         env: undefined
       },
@@ -197,6 +193,7 @@ export default {
       statusOptions,
       showReviewer: false,
       temp: {
+        id: '',
         project: '',
         swagger_url: '',
         env: ''
@@ -229,7 +226,7 @@ export default {
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
-        }, 1.5 * 1000)
+        }, 1.5 * 100)
       })
     },
     handleFilter() {
@@ -243,8 +240,23 @@ export default {
       })
       row.status = status
     },
+    sortChange(data) {
+      // const { prop, order } = data
+      // if (prop === 'scope.$index') {
+      //   this.sortByID(order)
+      // }
+    },
+    sortByID(order) {
+      // if (order === 'ascending') {
+      //   this.listQuery.sort = '+scope.$index'
+      // } else {
+      //   this.listQuery.sort = '-scope.$index '
+      // }
+      // this.handleFilter()
+    },
     resetTemp() {
       this.temp = {
+        id: '',
         project: '',
         env: '',
         swagger_url: '',
@@ -279,7 +291,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -290,8 +302,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
+          // tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          updateProject(tempData).then(() => {
             const index = this.list.findIndex(v => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
@@ -305,14 +317,25 @@ export default {
         }
       })
     },
-    handleDelete(row, index) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+    handleDelete(row) {
+      this.$confirm('请确认删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-      this.list.splice(index, 1)
+        .then(async() => {
+          const data = {
+            'id': row.id
+          }
+          await deleteProject(data)
+          const index = this.list.findIndex(v => v.id === this.temp.id)
+          this.list.splice(index, 1, this.temp)
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+        })
+        .catch(err => { console.error(err) })
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
