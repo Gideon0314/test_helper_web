@@ -29,7 +29,6 @@
       fit
       highlight-current-row
       style="width: 100%;"
-      @sort-change="sortChange"
     >
 
       <el-table-column :label="$t('table.id')" prop="id" align="center" width="80">
@@ -240,20 +239,20 @@ export default {
       })
       row.status = status
     },
-    sortChange(data) {
-      // const { prop, order } = data
-      // if (prop === 'scope.$index') {
-      //   this.sortByID(order)
-      // }
-    },
-    sortByID(order) {
-      // if (order === 'ascending') {
-      //   this.listQuery.sort = '+scope.$index'
-      // } else {
-      //   this.listQuery.sort = '-scope.$index '
-      // }
-      // this.handleFilter()
-    },
+    // sortChange(data) {
+    //   const { prop, order } = data
+    //   if (prop === 'id') {
+    //     this.sortByID(order)
+    //   }
+    // },
+    // sortByID(order) {
+    //   if (order === 'ascending') {
+    //     this.listQuery.sort = '+id'
+    //   } else {
+    //     this.listQuery.sort = '-id'
+    //   }
+    //   this.handleFilter()
+    // },
     resetTemp() {
       this.temp = {
         id: '',
@@ -328,8 +327,9 @@ export default {
             'id': row.id
           }
           await deleteProject(data)
-          const index = this.list.findIndex(v => v.id === this.temp.id)
-          this.list.splice(index, 1, this.temp)
+          this.getList()
+          // const index = this.list.findIndex(v => v.id === this.temp.id)
+          // this.list.splice(index, 1, this.temp)
           this.$message({
             type: 'success',
             message: '删除成功'
