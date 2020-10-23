@@ -62,7 +62,10 @@ export default {
     clipboardDemo: 'Clipboard',
     i18n: '国际化',
     externalLink: '外链',
-    profile: '个人中心'
+    profile: '个人中心',
+    project: '项目管理',
+    apiTest: '接口测试',
+    apiTask: '接口管理'
   },
   navbar: {
     dashboard: '首页',

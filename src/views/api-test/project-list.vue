@@ -7,7 +7,7 @@
       <el-input v-model="listQuery.project" :placeholder="$t('table.project')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <!--      项目类型-->
       <el-select v-model="listQuery.env" :placeholder="$t('table.env')" clearable class="filter-item" style="width: 130px;margin-left: 10px;" value="">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.display_name" />
+        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <!--      搜索-->
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" style="margin-left: 10px;" @click="handleFilter">
@@ -60,7 +60,7 @@
 
       <el-table-column :label="$t('table.update_at')" width="150px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.timestamp">{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-if="row.update_at">{{ row.update_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -192,7 +192,7 @@ export default {
       statusOptions,
       showReviewer: false,
       temp: {
-        id: '',
+        // id: '',
         project: '',
         swagger_url: '',
         env: ''
@@ -255,7 +255,7 @@ export default {
     // },
     resetTemp() {
       this.temp = {
-        id: '',
+        // id: '',
         project: '',
         env: '',
         swagger_url: '',

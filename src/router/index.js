@@ -89,24 +89,24 @@ export const constantRoutes = [
     redirect: '/api-test/projects',
     name: 'api-test',
     meta: {
-      title: '接口测试',
+      title: 'project',
       icon: 'swagger'
     },
     children: [
       {
-        path: '/api-test/projects',
+        path: '/api-test/project',
         component: () => import('@/views/api-test/project-list'),
-        name: 'projects',
-        meta: { title: '项目管理' }
+        name: 'project',
+        meta: { title: 'project' }
+      },
+      {
+        path: '/api-test/task',
+        component: () => import('@/views/api-test/task'),
+        name: 'api-docs',
+        meta: { title: 'apiTask' }
       },
       {
         path: '/api-test/tasks',
-        component: () => import('@/views/api-test/task'),
-        name: 'api-docs',
-        meta: { title: '测试任务' }
-      },
-      {
-        path: '/api-test/tasks/:id',
         component: () => import('@/views/api-test/task-board')
       }
     ]
