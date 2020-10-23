@@ -31,3 +31,11 @@ export function deleteProject(data) {
     data
   })
 }
+
+export function getProjectApiDocs(data) {
+  return request({
+    url: '/project/getApiDocs',
+    method: 'post',
+    data
+  })
+}
