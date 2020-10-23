@@ -89,7 +89,7 @@ export const constantRoutes = [
     redirect: '/api-test/projects',
     name: 'api-test',
     meta: {
-      title: 'project',
+      title: 'apiTest',
       icon: 'swagger'
     },
     children: [
@@ -106,7 +106,7 @@ export const constantRoutes = [
         meta: { title: 'apiTask' }
       },
       {
-        path: '/api-test/tasks',
+        path: '/api-test/task/board',
         component: () => import('@/views/api-test/task-board')
       }
     ]
