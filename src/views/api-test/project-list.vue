@@ -95,7 +95,7 @@
             {{ $t('table.pulling') }}
           </el-button>
 
-          <el-button v-if="row.status!='0'" size="mini" style="background-color: #36a3f7;color: white" @click="handleGetApiDocs(row,'0')">
+          <el-button v-if="row.status!='0'" size="mini" class="el-button el-button--primary" @click="handleGetApiDocs(row,'0')">
             {{ $t('table.get_api_docs') }}
           </el-button>
 
