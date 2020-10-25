@@ -34,8 +34,9 @@ export function deleteProject(data) {
 
 export function getProjectApiDocs(data) {
   return request({
-    url: '/project/getApiDocs',
+    url: '/project/get_api_docs',
     method: 'post',
-    data
+    data,
+    timeout: 10000000
   })
 }

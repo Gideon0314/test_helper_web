@@ -58,9 +58,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="$t('table.update_at')" width="150px" align="center">
+      <el-table-column :label="$t('table.updated_at')" width="150px" align="center">
         <template slot-scope="{row}">
-          <span v-if="row.update_at">{{ row.update_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span v-if="row.updated_at">{{ row.updated_at | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -83,13 +83,25 @@
       <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
 
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            {{ $t('table.edit') }}
+          <!--          <el-button type="primary" size="mini" @click="handleUpdate(row)">-->
+          <!--            {{ $t('table.edit') }}-->
+          <!--          </el-button>-->
+
+          <!--          <el-button v-if="row.status!='1'" size="mini" type="success" @click="handleModifyStatus(row,'1')">-->
+          <!--            {{ $t('table.get_api_docs') }}-->
+          <!--          </el-button>-->
+
+          <el-button v-if="row.status!='1'" size="mini" type="success">
+            {{ $t('table.pulling') }}
           </el-button>
 
-          <el-button v-if="row.status!='1'" size="mini" type="success" @click="handleModifyStatus(row,'1')">
-            {{ $t('table.publish') }}
+          <el-button v-if="row.status!='0'" size="mini" style="background-color: #36a3f7;color: white" @click="handleGetApiDocs(row,'0')">
+            {{ $t('table.get_api_docs') }}
           </el-button>
+
+          <!--          <el-button v-loading="buttonLoading" size="mini" type="success" @click="handleGetApiDocs(row)">-->
+          <!--            {{ $t('table.get_api_docs') }}-->
+          <!--          </el-button>-->
 
           <el-button size="mini" type="danger" @click="handleDelete(row)">
             {{ $t('table.delete') }}
@@ -135,7 +147,7 @@
 
 <script>
 import { fetchPv } from '@/api/article'
-import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
+import { projectList, createProject, updateProject, deleteProject, getProjectApiDocs } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -154,7 +166,8 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 
 const statusOptions = [
   { key: '0', display_name: '未更新' },
-  { key: '1', display_name: '已更新' }
+  { key: '1', display_name: '已更新' },
+  { key: '2', display_name: '需更新' }
 ]
 
 const statusKeyValue = statusOptions.reduce((acc, cur) => {
@@ -188,13 +201,14 @@ export default {
         env: undefined
       },
       calendarTypeOptions,
-      statusOptions,
+      statusOptions: [0, 1],
       showReviewer: false,
       temp: {
         // id: '',
         project: '',
         swagger_url: '',
-        env: ''
+        env: '',
+        status: 0
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -231,12 +245,37 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
+
     handleModifyStatus(row, status) {
       this.$message({
         message: '操作成功',
         type: 'success'
       })
       row.status = status
+    },
+    handleGetApiDocs(row, status) {
+      this.$confirm('开始获取Api文档?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      })
+        .then(async() => {
+          const data = {
+            'id': row.id
+          }
+          row.status = status
+          await getProjectApiDocs(data)
+          this.getList()
+          // const index = this.list.findIndex(v => v.id === this.temp.id)
+          // this.list.splice(index, 1, this.temp)
+          setTimeout(() => {
+          }, 1.5 * 100)
+          this.$message({
+            type: 'success',
+            message: '获取成功'
+          })
+        })
+        .catch(err => { console.error(err) })
     },
     // sortChange(data) {
     //   const { prop, order } = data
@@ -254,7 +293,7 @@ export default {
     // },
     resetTemp() {
       this.temp = {
-        // id: '',
+        id: '',
         project: '',
         env: '',
         swagger_url: '',
@@ -275,6 +314,7 @@ export default {
           // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           // this.temp.author = 'vue-element-admin'
           createProject(this.temp).then(() => {
+            this.getList()
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
