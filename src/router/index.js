@@ -107,7 +107,9 @@ export const constantRoutes = [
       },
       {
         path: '/api-test/task/board',
-        component: () => import('@/views/api-test/task-board')
+        component: () => import('@/views/api-test/task-board'),
+        meta: { title: 'editArticle', noCache: true, activeMenu: '/api-test/task' },
+        hidden: true
       }
     ]
   }
