@@ -57,6 +57,9 @@
         登录
       </el-button>
     </el-form>
+    <a id="icp" href="https://beian.miit.gov.cn/" target="_blank">
+      沪ICP备2021002999号
+    </a>
   </div>
 </template>
 
@@ -176,7 +179,15 @@ $cursor: #fff;
     color: $cursor;
   }
 }
-
+#icp {
+    text-align: center;
+    height: 40px; /*设定footer高度*/
+    position: absolute; /*设定footer绝对位置在底部*/
+    bottom: 0;
+    width: 100%; /*展开footer宽度*/
+    line-height: 40px;
+    color: white;
+}
 /* reset element-ui css */
 .login-container {
   .el-input {
